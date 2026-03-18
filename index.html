@@ -3,167 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeraGustavo Pro - Cloud Manager</title>
+    <title>TeraGustavo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #0f172a; font-family: 'Inter', sans-serif; color: white; }
-        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; }
-        .editor-input { background: #1e293b; border: 1px solid #334155; color: #f1f5f9; padding: 12px; border-radius: 8px; width: 100%; outline: none; }
-        .editor-input:focus { border-color: #3b82f6; }
-        .btn-primary { background: #2563eb; transition: 0.3s; }
-        .btn-primary:hover { background: #1d4ed8; transform: scale(1.02); }
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', system-ui, sans-serif; color: #1c1e21; }
+        .app-container { max-width: 1200px; margin: 0 auto; transition: 0.3s; }
+        .sidebar-nav { background: white; border-right: 1px solid #ddd; height: 100vh; position: sticky; top: 0; }
+        .file-grid-item { background: white; border: 1px solid #e4e6eb; border-radius: 8px; transition: all 0.2s; }
+        .file-grid-item:hover { border-color: #0061ff; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transform: translateY(-2px); }
+        .btn-upload { background: #0061ff; color: white; border-radius: 20px; transition: 0.2s; }
+        .btn-upload:hover { background: #0052d9; }
+        #login-screen { background: linear-gradient(135deg, #0061ff 0%, #00d4ff 100%); }
     </style>
 </head>
-<body class="min-h-screen">
+<body>
 
-    <div id="login-screen" class="flex items-center justify-center min-h-screen">
-        <div class="glass-card p-8 w-full max-w-md text-center shadow-2xl">
-            <h1 class="text-3xl font-bold mb-2 text-blue-400">TeraGustavo</h1>
-            <p class="text-slate-400 mb-6 text-sm italic">Painel de Administração de Arquivos</p>
-            <input type="password" id="pass-input" placeholder="Senha: Gustavo23@" class="editor-input mb-4 text-center">
-            <button onclick="handleLogin()" class="w-full btn-primary p-3 rounded-lg font-bold shadow-lg shadow-blue-900/40">Entrar no Sistema</button>
-            <p id="error-msg" class="text-red-500 mt-4 hidden font-medium">Senha Inválida!</p>
+    <div id="login-screen" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm text-center">
+            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-cloud text-blue-600 text-2xl"></i>
+            </div>
+            <h1 class="text-2xl font-bold mb-1">TeraGustavo</h1>
+            <p class="text-gray-500 text-sm mb-6">Entre para gerenciar seus arquivos</p>
+            <input type="password" id="p-field" placeholder="Senha" class="w-full p-3 border border-gray-300 rounded-lg mb-4 text-center outline-none focus:border-blue-500">
+            <button onclick="v_auth()" class="w-full btn-upload p-3 font-bold shadow-lg">Acessar</button>
+            <p id="e-msg" class="text-red-500 text-xs mt-4 hidden">Senha inválida.</p>
         </div>
     </div>
 
-    <div id="main-content" class="hidden p-6 max-w-6xl mx-auto">
-        
-        <div class="glass-card p-6 mb-8 border-l-4 border-l-blue-500">
-            <h3 class="text-lg font-semibold mb-4 text-blue-400"><i class="fas fa-edit mr-2"></i>Editor de Arquivos e Pastas</h3>
-            <div class="space-y-4">
-                <input type="text" id="new-path" placeholder="Caminho/Nome (ex: fotos/servidor.txt)" class="editor-input">
-                <textarea id="new-content" rows="4" placeholder="Conteúdo do arquivo..." class="editor-input"></textarea>
-                
-                <div class="flex gap-4">
-                    <button onclick="createOnGithub()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 p-4 rounded-xl font-bold transition flex items-center justify-center">
-                        <i class="fas fa-cloud-upload-alt mr-2"></i>Criar/Salvar no GitHub
+    <div id="app-content" class="hidden min-h-screen flex">
+        <aside class="w-64 sidebar-nav hidden md:block p-6">
+            <div class="flex items-center gap-2 mb-10">
+                <i class="fas fa-box-open text-blue-600 text-2xl"></i>
+                <span class="font-bold text-xl tracking-tight">TeraGustavo</span>
+            </div>
+            <nav class="space-y-2">
+                <a href="#" class="flex items-center gap-3 p-3 bg-blue-50 text-blue-600 rounded-lg font-medium">
+                    <i class="fas fa-folder"></i> Meus Arquivos
+                </a>
+                <a href="#" onclick="location.reload()" class="flex items-center gap-3 p-3 text-gray-600 hover:bg-gray-100 rounded-lg">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </a>
+            </nav>
+        </aside>
+
+        <main class="flex-1 p-4 md:p-8">
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                <h2 class="text-2xl font-bold">Arquivos</h2>
+                <div class="flex gap-2 w-full md:w-auto">
+                    <button onclick="document.getElementById('m-create').classList.toggle('hidden')" class="btn-upload px-6 py-2 font-medium flex items-center justify-center gap-2 flex-1">
+                        <i class="fas fa-plus"></i> Novo Item
                     </button>
-                    <label class="flex-1 bg-slate-700 hover:bg-slate-600 p-4 rounded-xl font-bold text-center cursor-pointer transition flex items-center justify-center">
-                        <i class="fas fa-file-import mr-2"></i>Importar Local
-                        <input type="file" id="file-import" class="hidden" onchange="importLocalFile(this)">
-                    </label>
+                </div>
+            </header>
+
+            <div id="m-create" class="hidden mb-8 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                <div class="grid grid-cols-1 gap-4">
+                    <input type="text" id="n-path" placeholder="Nome do arquivo ou pasta..." class="w-full p-2 border-b border-gray-200 outline-none focus:border-blue-500">
+                    <textarea id="n-cont" rows="3" placeholder="Conteúdo (opcional)..." class="w-full p-2 border border-gray-100 rounded bg-gray-50 text-sm outline-none"></textarea>
+                    <div class="flex gap-2">
+                        <button onclick="u_git()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold">Salvar no Cloud</button>
+                        <label class="bg-gray-100 px-4 py-2 rounded-lg text-sm font-bold cursor-pointer hover:bg-gray-200">
+                            Importar Local <input type="file" id="f-imp" class="hidden" onchange="i_loc(this)">
+                        </label>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="flex items-center justify-between mb-6">
-            <h4 class="text-xl font-bold text-slate-200"><i class="fas fa-folder-tree mr-2"></i>Explorador de Arquivos</h4>
-            <button onclick="fetchFiles()" class="text-blue-400 hover:text-blue-300"><i class="fas fa-sync-alt"></i></button>
-        </div>
-
-        <div id="file-list" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            </div>
+            <div id="f-view" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                </div>
+        </main>
     </div>
 
     <script>
-        // CONFIGURAÇÕES GUSTAVO
-        const REPO_OWNER = 'gustavooliveira178922-debug'; 
-        const REPO_NAME = 'asdadjanasbgfyasfaigaufafnaif';
-        const GITHUB_TOKEN = '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';
-        
-        // Hash SHA-256 de "Gustavo23@"
-        const HASH_CORRETO = "8c66e2c342f5341f237f37435f308f237194639918730438153093259836336e";
+        const U_N = 'gustavooliveira178922-debug'; 
+        const R_N = 'asdadjanasbgfyasfaigaufafnaif'; 
+        const T_K = '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';
+        const H_V = "8c66e2c342f5341f237f37435f308f237194639918730438153093259836336e";
 
-        async function handleLogin() {
-            const pass = document.getElementById('pass-input').value;
-            
-            // Gerar Hash da senha digitada
-            const msgUint8 = new TextEncoder().encode(pass);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hashDigitado = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-
-            if (hashDigitado === HASH_CORRETO) {
+        async function v_auth() {
+            const p = document.getElementById('p-field').value;
+            const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(p));
+            const h = Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, '0')).join('');
+            if (h === H_V) {
                 document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('main-content').classList.remove('hidden');
-                fetchFiles();
+                document.getElementById('app-content').classList.remove('hidden');
+                document.getElementById('app-content').classList.add('flex');
+                g_files();
             } else {
-                document.getElementById('error-msg').classList.remove('hidden');
-                document.getElementById('pass-input').value = '';
+                document.getElementById('e-msg').classList.remove('hidden');
             }
         }
 
-        async function createOnGithub() {
-            const path = document.getElementById('new-path').value;
-            let content = document.getElementById('new-content').value;
-
-            if (!path) return alert("Por favor, dê um nome ao arquivo ou pasta!");
-
-            // No GitHub, pastas só aparecem se tiverem arquivos dentro.
-            const finalPath = path.includes('.') ? path : `${path}/.keep`;
-            const base64Content = btoa(unescape(encodeURIComponent(content || "Arquivo criado via TeraGustavo")));
-
+        async function g_files(path = '') {
+            const c = document.getElementById('f-view');
+            c.innerHTML = '<div class="col-span-full py-10 text-center text-gray-400"><i class="fas fa-spinner fa-spin"></i></div>';
             try {
-                const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${finalPath}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `token ${GITHUB_TOKEN}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        message: `Upload via TeraGustavo: ${path}`,
-                        content: base64Content
-                    })
+                const r = await fetch(`https://api.github.com/repos/${U_N}/${R_N}/contents/${path}`, {
+                    headers: { 'Authorization': `token ${T_K}` }
                 });
-
-                if (res.ok) {
-                    alert("Sucesso! O repositório foi atualizado.");
-                    document.getElementById('new-path').value = '';
-                    document.getElementById('new-content').value = '';
-                    fetchFiles();
-                } else {
-                    const err = await res.json();
-                    alert("Erro: " + err.message);
-                }
-            } catch (e) {
-                console.error(e);
-                alert("Falha na conexão com o GitHub.");
-            }
-        }
-
-        function importLocalFile(input) {
-            const file = input.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function() {
-                document.getElementById('new-path').value = file.name;
-                document.getElementById('new-content').value = reader.result;
-                alert("Arquivo '" + file.name + "' carregado no editor! Agora clique em Criar.");
-            };
-            reader.readAsText(file);
-        }
-
-        async function fetchFiles(path = '') {
-            const container = document.getElementById('file-list');
-            container.innerHTML = '<div class="col-span-full text-center"><i class="fas fa-spinner fa-spin text-2xl"></i></div>';
-            
-            try {
-                const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`);
-                const data = await res.json();
-                
-                if (!Array.isArray(data)) {
-                    container.innerHTML = '<p class="text-slate-500">Pasta vazia.</p>';
-                    return;
-                }
-
-                container.innerHTML = '';
-                data.forEach(item => {
-                    if (['index.html', '.keep', 'README.md'].includes(item.name)) return;
-                    
-                    const div = document.createElement('div');
-                    div.className = "glass-card p-4 text-center cursor-pointer hover:bg-slate-800 transition-all border border-transparent hover:border-blue-500";
-                    div.innerHTML = `
-                        <i class="fas ${item.type === 'dir' ? 'fa-folder text-yellow-500' : 'fa-file-code text-blue-400'} text-4xl mb-3"></i>
-                        <p class="text-xs font-medium truncate px-2">${item.name}</p>
+                const d = await r.json();
+                if (!Array.isArray(d)) return;
+                c.innerHTML = '';
+                d.sort((a,b) => (b.type === 'dir') - (a.type === 'dir'));
+                d.forEach(i => {
+                    if (['index.html', '.keep', 'README.md'].includes(i.name)) return;
+                    const el = document.createElement('div');
+                    el.className = "file-grid-item p-4 flex flex-col items-center justify-center text-center cursor-pointer";
+                    el.innerHTML = `
+                        <i class="fas ${i.type === 'dir' ? 'fa-folder text-yellow-400' : 'fa-file-alt text-blue-500'} text-4xl mb-3"></i>
+                        <span class="text-sm font-medium text-gray-700 truncate w-full">${i.name}</span>
                     `;
-                    div.onclick = () => item.type === 'dir' ? fetchFiles(item.path) : window.open(item.html_url);
-                    container.appendChild(div);
+                    el.onclick = () => i.type === 'dir' ? g_files(i.path) : window.open(i.html_url);
+                    c.appendChild(el);
                 });
-            } catch (e) {
-                container.innerHTML = 'Erro ao carregar arquivos.';
-            }
+            } catch (e) { c.innerHTML = 'Erro ao carregar.'; }
+        }
+
+        async function u_git() {
+            const p = document.getElementById('n-path').value;
+            const ct = document.getElementById('n-cont').value;
+            if (!p) return;
+            const fp = p.includes('.') ? p : `${p}/.keep`;
+            const b64 = btoa(unescape(encodeURIComponent(ct || "TeraGustavo Cloud")));
+            try {
+                const r = await fetch(`https://api.github.com/repos/${U_N}/${R_N}/contents/${fp}`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `token ${T_K}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: `Add ${p}`, content: b64 })
+                });
+                if (r.ok) { 
+                    document.getElementById('n-path').value = '';
+                    document.getElementById('n-cont').value = '';
+                    document.getElementById('m-create').classList.add('hidden');
+                    g_files(); 
+                }
+            } catch (e) { alert("Falha no upload"); }
+        }
+
+        function i_loc(i) {
+            const f = i.files[0];
+            if (!f) return;
+            const r = new FileReader();
+            r.onload = () => { 
+                document.getElementById('n-path').value = f.name; 
+                document.getElementById('n-cont').value = r.result;
+                document.getElementById('m-create').classList.remove('hidden');
+            };
+            r.readAsText(f);
         }
     </script>
 </body>
